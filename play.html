@@ -6,39 +6,43 @@
 <title>语音导览</title>
 <style>
   *{box-sizing:border-box}
-  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:#f5f1e8;color:#1a1a1a;margin:0;padding:20px 16px;text-align:center;-webkit-tap-highlight-color:transparent}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:#f5f1e8;color:#1a1a1a;margin:0;padding:20px 16px;text-align:center}
   h1{font-size:24px;margin:40px 0 6px;color:#0d3b66}
-  .sub{color:#666;font-size:15px;margin-bottom:32px}
+  .sub{color:#666;font-size:15px;margin-bottom:24px}
   .box{background:#fff;border-radius:16px;padding:20px;max-width:540px;margin:0 auto;box-shadow:0 4px 20px rgba(0,0,0,.08)}
   audio{width:100%;height:56px}
-  .tip{margin-top:20px;font-size:13px;color:#888}
-  .err{color:#c0392b;font-size:14px;margin-top:24px}
+  .tip{margin-top:16px;font-size:13px;color:#888}
+  .err{color:#c0392b;font-size:14px;margin-top:24px;display:none;white-space:pre-wrap}
 </style>
 </head>
 <body>
 <div class="box">
-  <h1 id="title">景点语音导览</h1>
-  <p class="sub">点击播放键即可收听，无需下载</p>
+  <h1 id="title">加载中...</h1>
+  <p class="sub" id="sub">请稍候</p>
   <audio id="a" controls preload="metadata"></audio>
-  <p class="tip">若未自动加载，请检查网络后刷新</p>
+  <p class="tip">点击播放键即可收听，无需下载</p>
+  <p class="err" id="err"></p>
 </div>
 <script>
 (function(){
-  var base="https://cdn.jsdelivr.net/gh/myxx1988-commits/de-audio@v1.1/";
+  // mp3 仍走 jsDelivr（音频分发正常），网页本身走 GitHub Pages
+  var base="https://cdn.jsdelivr.net/gh/myxx1988-commits/de-audio@v1.0/";
   var f=new URLSearchParams(location.search).get("f");
   var a=document.getElementById("a");
   var t=document.getElementById("title");
+  var e=document.getElementById("err");
   if(!f){
-    t.textContent="链接缺少参数";
-    a.insertAdjacentHTML("afterend",'<p class="err">请用带 ?f=景点名.mp3 的二维码扫码</p>');
+    t.textContent="参数缺失";
+    e.style.display="block"; e.textContent="二维码未带景点名，请重新生成PDF";
     return;
   }
-  a.src=base+encodeURIComponent(f);
+  a.src=base+encodeURI(f);
   t.textContent=f.replace(/\.mp3$/,"").replace(/^\d+_/,"");
-  function go(){a.play().catch(function(){});}
-  if(window.WeixinJSBridge){WeixinJSBridge.invoke("getNetworkType",{},go);}
-  document.addEventListener("WeixinJSBridgeReady",go,false);
-  document.addEventListener("touchstart",go,{once:true});
+  document.getElementById("sub").textContent="准备播放";
+  a.onerror=function(){
+    e.style.display="block";
+    e.textContent="音频加载失败\n1. 检查文件名是否在 jsDelivr 文件列表里\n2. 检查网络\n当前地址: "+a.src;
+  };
 })();
 </script>
 </body>
