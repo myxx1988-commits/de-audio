@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>语音导览</title>
+<style>
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+       background:#f5f1e8;color:#222;margin:0;padding:24px;text-align:center}
+  h1{font-size:22px;margin:32px 0 8px}
+  p{color:#666;font-size:14px}
+  audio{width:100%;max-width:520px;margin-top:48px;height:54px}
+  .tip{margin-top:18px;font-size:13px;color:#999}
+</style>
+</head>
+<body>
+<h1 id="title">景点语音导览</h1>
+<p class="tip">点击播放键即可收听，无需下载</p>
+<audio id="a" controls preload="metadata"></audio>
+<script>
+  const base="https://cdn.jsdelivr.net/gh/myxx1988-commits/de-audio@v1.0/";
+  const f=new URLSearchParams(location.search).get("f");
+  if(f){
+    document.getElementById("a").src=base+f;
+    document.getElementById("title").textContent=f.replace(/\.mp3$/,"").replace(/^\d+_/,"");
+  }
+  // 微信里尝试自动出声（iOS 需桥接，安卓/点击控件均可）
+  var audio=document.getElementById("a");
+  function tryPlay(){audio.play().catch(function(){});}
+  document.addEventListener("WeixinJSBridgeReady",tryPlay,false);
+  window.WeixinJSBridge&&tryPlay();
+  document.addEventListener("touchstart",tryPlay,{once:true});
+</script>
+</body>
+</html>
