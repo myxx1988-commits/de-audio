@@ -2,34 +2,44 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>语音导览</title>
 <style>
-  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
-       background:#f5f1e8;color:#222;margin:0;padding:24px;text-align:center}
-  h1{font-size:22px;margin:32px 0 8px}
-  p{color:#666;font-size:14px}
-  audio{width:100%;max-width:520px;margin-top:48px;height:54px}
-  .tip{margin-top:18px;font-size:13px;color:#999}
+  *{box-sizing:border-box}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:#f5f1e8;color:#1a1a1a;margin:0;padding:20px 16px;text-align:center;-webkit-tap-highlight-color:transparent}
+  h1{font-size:24px;margin:40px 0 6px;color:#0d3b66}
+  .sub{color:#666;font-size:15px;margin-bottom:32px}
+  .box{background:#fff;border-radius:16px;padding:20px;max-width:540px;margin:0 auto;box-shadow:0 4px 20px rgba(0,0,0,.08)}
+  audio{width:100%;height:56px}
+  .tip{margin-top:20px;font-size:13px;color:#888}
+  .err{color:#c0392b;font-size:14px;margin-top:24px}
 </style>
 </head>
 <body>
-<h1 id="title">景点语音导览</h1>
-<p class="tip">点击播放键即可收听，无需下载</p>
-<audio id="a" controls preload="metadata"></audio>
+<div class="box">
+  <h1 id="title">景点语音导览</h1>
+  <p class="sub">点击播放键即可收听，无需下载</p>
+  <audio id="a" controls preload="metadata"></audio>
+  <p class="tip">若未自动加载，请检查网络后刷新</p>
+</div>
 <script>
-  const base="https://cdn.jsdelivr.net/gh/myxx1988-commits/de-audio@v1.0/";
-  const f=new URLSearchParams(location.search).get("f");
-  if(f){
-    document.getElementById("a").src=base+f;
-    document.getElementById("title").textContent=f.replace(/\.mp3$/,"").replace(/^\d+_/,"");
+(function(){
+  var base="https://cdn.jsdelivr.net/gh/myxx1988-commits/de-audio@v1.1/";
+  var f=new URLSearchParams(location.search).get("f");
+  var a=document.getElementById("a");
+  var t=document.getElementById("title");
+  if(!f){
+    t.textContent="链接缺少参数";
+    a.insertAdjacentHTML("afterend",'<p class="err">请用带 ?f=景点名.mp3 的二维码扫码</p>');
+    return;
   }
-  // 微信里尝试自动出声（iOS 需桥接，安卓/点击控件均可）
-  var audio=document.getElementById("a");
-  function tryPlay(){audio.play().catch(function(){});}
-  document.addEventListener("WeixinJSBridgeReady",tryPlay,false);
-  window.WeixinJSBridge&&tryPlay();
-  document.addEventListener("touchstart",tryPlay,{once:true});
+  a.src=base+encodeURIComponent(f);
+  t.textContent=f.replace(/\.mp3$/,"").replace(/^\d+_/,"");
+  function go(){a.play().catch(function(){});}
+  if(window.WeixinJSBridge){WeixinJSBridge.invoke("getNetworkType",{},go);}
+  document.addEventListener("WeixinJSBridgeReady",go,false);
+  document.addEventListener("touchstart",go,{once:true});
+})();
 </script>
 </body>
 </html>
